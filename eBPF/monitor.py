@@ -13,7 +13,7 @@ def new_key(bpf):
     #map[key] = map.Leaf(c_ulong(arguments))
     # map[c_ulong(1)] = map.Leaf(c_ulong(5),c_ulong(2), c_ulong(3))
     # flow_data[flow_data.Key(c_ulong(5),c_ulong(5),c_ulong(5),c_ulong(4),c_ulong(5))] = flow_data.Leaf(c_ulong(1),c_ulong(2), c_ulong(3),c_ulong(4),c_ulong(5),c_ulong(6),c_ulong(7),c_ulong(8))
-    map = bpf.get_table("flow")
+    map = bpf.get_table("Flow")
 
     flow = Flow_Data(map, "192.0.0.1", "80.101.30.20", 8080, 3999, 10)
     key = flow.get_key()
@@ -53,7 +53,7 @@ def main():
     # debug(bpf)
 
 def debug(bpf):
-    debug = bpf.get_table("debug")
+    debug = bpf.get_table("Debug")
     print("Debugging")
     # hex_to_ip(0)
     # ip_to_hex(0)
@@ -77,7 +77,7 @@ def debug(bpf):
     bpf.remove_xdp(interface)
 
 def main_loop(bpf):
-    flow_data = bpf.get_table("flow")
+    flow_data = bpf.get_table("Flow")
     print("Printing data")
     new_key(bpf)
     while 1:
