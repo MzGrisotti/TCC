@@ -29,6 +29,13 @@ def new_key(bpf):
     print("ip_src: {}, ip_dst: {}, port_src: {}, port_dst: {}, protocol: {}".format(ip_src, ip_dst, port_src, port_dst, protocol))
     map[map.Key(ip_src, ip_dst, port_src, port_dst, protocol)] = map.Leaf(c_ulong(0),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0))
 
+def convert_time(nanoseconds):
+    print("convert_time")
+    seconds, nanoseconds = divmod(info, 1e9)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    print(hours, minutes, seconds, nanoseconds)
+
 def load_ebpf_program():
 
     print("Loading program into Interface")
@@ -78,6 +85,7 @@ def debug(bpf):
 
 def main_loop(bpf):
     flow_data = bpf.get_table("Flow")
+    info_data = bpf.get_table("Info")
     print("Printing data")
     new_key(bpf)
     while 1:
@@ -86,7 +94,12 @@ def main_loop(bpf):
             for k in flow_data.keys():
                 map = flow_data[k]
                 flow = Flow_Data(map)
-                flow.show()
+                # flow.show()
+
+            for k in info_data.keys():
+                info1 = info_data[k].info1
+                info2 = info_data[k].info2
+                print("last packet:{}, delta time:{}".format(info1, info2))
 
             time.sleep(1)
         except KeyboardInterrupt:

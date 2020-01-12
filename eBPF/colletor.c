@@ -26,6 +26,11 @@ struct Flow_key {
     u64 protocol;
 };
 
+struct Info_data {
+    u64 info1;
+    u64 info2;
+};
+
 struct Debug_data {
     u64 info1;
     u64 info2;
@@ -38,10 +43,10 @@ struct Debug_data {
 #define IP_ICMP   1
 #define ETH_HLEN  14
 
-BPF_HASH(Debug, u64, struct Debug_data, 10240);
 //10240000 max
+BPF_HASH(Debug, u64, struct Debug_data, 10240);
 BPF_HASH(Flow, struct Flow_key, struct Flow_data, 10240);
-// BPF_HASH(Flow, u64, struct Flow_data, 1024);
+BPF_HASH(Info, u64, struct Info_data, 10240);
 
 static void new_entry_map(struct Flow_key *key, u64 ip_len);
 static void match_entry_map(struct Flow_key *key, u64 ip_len);
@@ -53,10 +58,12 @@ int colletor(struct __sk_buff *skb) {
     u64 next;
 
     struct Debug_data Debug_Zero = {zero, zero, zero};
+    struct Info_data info_zero = {zero, zero};
 
-    struct Debug_data* data = Debug.lookup_or_try_init(&zero, &Debug_Zero);
-    if(data){
-        data->info3 = bpf_ktime_get_ns();
+    struct Info_data* info = Info.lookup_or_try_init(&zero, &info_zero);
+    if(info){
+        info->info1 = bpf_ktime_get_ns();
+        info->info2 = bpf_ktime_get_ns() - info->info1;
     }
 
     struct ethernet_t *ethernet = cursor_advance(cursor, sizeof(*ethernet));
@@ -81,7 +88,6 @@ int colletor(struct __sk_buff *skb) {
             key.port_dst = udp->dport;
             //new_entry_map(&key, ip->tlen);
         }
-
     }
 
     return -1;
