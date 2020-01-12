@@ -5,6 +5,7 @@ from Flow_Class import Flow_Data
 from Helper_Functions import *
 import time
 import sys
+import uptime
 
 interface = "enp0s3"
 
@@ -15,7 +16,7 @@ def new_key(bpf):
     # flow_data[flow_data.Key(c_ulong(5),c_ulong(5),c_ulong(5),c_ulong(4),c_ulong(5))] = flow_data.Leaf(c_ulong(1),c_ulong(2), c_ulong(3),c_ulong(4),c_ulong(5),c_ulong(6),c_ulong(7),c_ulong(8))
     map = bpf.get_table("Flow")
 
-    flow = Flow_Data(map, "192.0.0.1", "80.101.30.20", 8080, 3999, 10)
+    flow = Flow_Data(map, "192.0.0.1", "80.101.30.20", 8080, 3999, 10, uptime.uptime())
     key = flow.get_key()
     leaf = flow.get_leaf()
     map[key] = leaf
@@ -25,9 +26,10 @@ def new_key(bpf):
     port_src = c_ulong(1000)
     port_dst = c_ulong(3999)
     protocol = c_ulong(6)
+    start_tstamp = c_ulong(0)
     # protocol = c_ulong(int(hex(6), 16))
-    print("ip_src: {}, ip_dst: {}, port_src: {}, port_dst: {}, protocol: {}".format(ip_src, ip_dst, port_src, port_dst, protocol))
-    map[map.Key(ip_src, ip_dst, port_src, port_dst, protocol)] = map.Leaf(c_ulong(0),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0))
+    # print("ip_src: {}, ip_dst: {}, port_src: {}, port_dst: {}, protocol: {}".format(ip_src, ip_dst, port_src, port_dst, protocol))
+    map[map.Key(ip_src, ip_dst, port_src, port_dst, protocol)] = map.Leaf(c_ulong(0),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0), start_tstamp, c_ulong(0), c_ulong(0), c_ulong(0))
 
 def convert_time(nanoseconds):
     print("convert_time")
@@ -94,12 +96,13 @@ def main_loop(bpf):
             for k in flow_data.keys():
                 map = flow_data[k]
                 flow = Flow_Data(map)
-                # flow.show()
+                flow.show()
 
-            for k in info_data.keys():
-                info1 = info_data[k].info1
-                info2 = info_data[k].info2
-                print("last packet:{}, delta time:{}".format(info1, info2))
+            # for k in info_data.keys():
+            #     info1 = info_data[k].info1
+            #     info2 = info_data[k].info2
+            #     up = uptime.uptime()
+            #     print("time since last packet:{}, last packet:{}, delta time:{}".format(up - (info1/1e9), info1, info2))
 
             time.sleep(1)
         except KeyboardInterrupt:

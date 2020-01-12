@@ -16,6 +16,10 @@ struct Flow_data {
     u64 protocol;
     u64 pktcnt;
     u64 bytes;
+    u64 start_tstamp;
+    u64 end_tstamp;
+    u64 last_packet_tstamp;
+    u64 duration;
 };
 
 struct Flow_key {
@@ -100,6 +104,7 @@ static void match_entry_map(struct Flow_key *key, u64 ip_len){
     if(flow){ // Found entry
         flow->pktcnt++;
         flow->bytes += ip_len;
+        flow->last_packet_tstamp = bpf_ktime_get_ns();
     }else{ // Not found entry
         new_entry_map(key, ip_len);
     }
@@ -109,7 +114,7 @@ static void match_entry_map(struct Flow_key *key, u64 ip_len){
 static void new_entry_map(struct Flow_key *key, u64 ip_len){
 
     u64 zero = 0;
-    struct Flow_data Flow_Zero = {zero, zero, zero, zero, zero, zero, zero, zero};
+    struct Flow_data Flow_Zero = {zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero};
 
     // Create new entry
     struct Flow_data* flow = Flow.lookup_or_try_init(key, &Flow_Zero);
@@ -121,5 +126,7 @@ static void new_entry_map(struct Flow_key *key, u64 ip_len){
         flow->protocol = key->protocol;
         flow->pktcnt++;
         flow->bytes += ip_len;
+        flow->start_tstamp = bpf_ktime_get_ns();
+        flow->last_packet_tstamp = bpf_ktime_get_ns();
     }
 }

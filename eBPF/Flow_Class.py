@@ -1,7 +1,7 @@
 from Helper_Functions import *
 from ctypes import *
 
-# struct flow_data {
+# struct Flow_data {
 #     u64 id;
 #     u64 ip_src;
 #     u64 ip_dst;
@@ -10,6 +10,10 @@ from ctypes import *
 #     u64 protocol;
 #     u64 pktcnt;
 #     u64 bytes;
+#     u64 start_tstamp;
+#     u64 end_tstamp;
+#     u64 last_packet_tstamp;
+#     u64 duration;
 # };
 #
 # struct key_ {
@@ -37,6 +41,10 @@ class Flow_Data:
             # self.protocol = hex(int(map.protocol))
             self.pktcnt = int(map.pktcnt)
             self.bytes = int(map.bytes)
+            self.start_tstamp = int(map.start_tstamp)
+            self.end_tstamp = int(map.end_tstamp)
+            self.last_packet_tstamp = int(map.last_packet_tstamp)
+            self.duration = int(map.duration)
 
         # Created with User Space Arguments
         else:
@@ -47,6 +55,10 @@ class Flow_Data:
             self.port_src = args[3]
             self.port_dst = args[4]
             self.protocol = long(args[5])
+            self.start_tstamp = int(args[6]*1e9)
+            # self.end_tstamp = args[7]
+            # self.last_packet_tstamp = args[8]
+            # self.duration = args[9]
 
     def get_key(self):
         # Return Kernel's Key Object
@@ -65,8 +77,9 @@ class Flow_Data:
         port_src = c_ulong(self.port_src)
         port_dst = c_ulong(self.port_dst)
         protocol = self.protocol
-        return self.map.Leaf(c_ulong(id),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0))
+        start_tstamp = c_ulong(self.start_tstamp)
+        return self.map.Leaf(c_ulong(id),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0),start_tstamp,c_ulong(0),c_ulong(0),c_ulong(0))
 
     def show(self):
-        print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, protocol: {:4}, pktcnt: {:3}, bytes: {:10}, map_entry: {}"
-        .format(self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.id))
+        print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}, last: {:15}"
+        .format(self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.id, self.start_tstamp, self.last_packet_tstamp))
