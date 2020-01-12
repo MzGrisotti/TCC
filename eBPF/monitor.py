@@ -26,10 +26,10 @@ def new_key(bpf):
     port_src = c_ulong(1000)
     port_dst = c_ulong(3999)
     protocol = c_ulong(6)
-    start_tstamp = c_ulong(0)
+    start_tstamp = c_ulong(int(uptime.uptime()*1e9))
     # protocol = c_ulong(int(hex(6), 16))
     # print("ip_src: {}, ip_dst: {}, port_src: {}, port_dst: {}, protocol: {}".format(ip_src, ip_dst, port_src, port_dst, protocol))
-    map[map.Key(ip_src, ip_dst, port_src, port_dst, protocol)] = map.Leaf(c_ulong(0),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0), start_tstamp, c_ulong(0), c_ulong(0), c_ulong(0))
+    map[map.Key(ip_src, ip_dst, port_src, port_dst, protocol)] = map.Leaf(c_ulong(0),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0), start_tstamp, c_ulong(0), start_tstamp, c_ulong(0))
 
 def convert_time(nanoseconds):
     print("convert_time")

@@ -1,5 +1,6 @@
 from Helper_Functions import *
 from ctypes import *
+import uptime
 
 # struct Flow_data {
 #     u64 id;
@@ -57,7 +58,7 @@ class Flow_Data:
             self.protocol = long(args[5])
             self.start_tstamp = int(args[6]*1e9)
             # self.end_tstamp = args[7]
-            # self.last_packet_tstamp = args[8]
+            self.last_packet_tstamp = int(args[6]*1e9)
             # self.duration = args[9]
 
     def get_key(self):
@@ -78,7 +79,11 @@ class Flow_Data:
         port_dst = c_ulong(self.port_dst)
         protocol = self.protocol
         start_tstamp = c_ulong(self.start_tstamp)
-        return self.map.Leaf(c_ulong(id),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0),start_tstamp,c_ulong(0),c_ulong(0),c_ulong(0))
+        last_packet_tstamp = c_ulong(self.last_packet_tstamp)
+        return self.map.Leaf(c_ulong(id),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0),start_tstamp,c_ulong(0),last_packet_tstamp,c_ulong(0))
+
+    def get_delta_time(self):
+        return uptime.uptime() - (self.last_packet_tstamp/1e9)
 
     def show(self):
         print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}, last: {:15}"
