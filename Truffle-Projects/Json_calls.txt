@@ -1,0 +1,39 @@
+//Chamada padrão
+
+curl -X POST --data '{"jsonrpc":"2.0","method":"","params":[],"id":1}'
+
+"method":"eth_call"             //Chama metodo -> retorna resultado
+"method":"eth_sendTransaction"  //Modifica o estado do contrato -> retorna hash do novo bloco
+
+"params":[
+  "from":""
+  "to":""
+  "data":"hash do metodo + argumentos"
+]
+
+Exemplo:
+//eth_call
+curl http://127.0.0.1:9545/ -X POST --data 
+  '{
+    "jsonrpc":"2.0",
+    "method":"eth_call",
+    "params":[{
+      "to":"0xD651e40514b11698E272A258cd9b2C145D61a5f6", 
+      "data":"0x17d7de7c"
+    }],
+    "id":1
+  }'
+
+//eth_sendTransaction
+
+curl http://127.0.0.1:9545/ -X POST --data 
+  '{
+    "jsonrpc":"2.0",
+    "method":"eth_sendTransaction",
+    "params":[{
+      "from":"0x96c733841280e3763247eef8a24c5eacf2ca50d2",
+      "to":"0xD651e40514b11698E272A258cd9b2C145D61a5f6",
+      "data":"0xabd1b73d"
+    }],
+    "id":1
+  }'

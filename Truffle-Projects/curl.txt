@@ -1,0 +1,63 @@
+
+//Call
+
+curl 127.0.0.1:7545 -X POST --data '{"jsonrpc":"2.0","method":"","params":[from:"", to:"", data:""],"id":1}'
+
+"method":"eth_call"
+"method":"eth_sendTransaction"
+
+//Sender's address
+
+0x6Dbe3006e1674ca32fb9A32e855c068dFd2259DB
+
+//Contract's address
+
+0x941Ec482894e9f69f7407c245855073e61c65F28
+
+//GetCount Method's Hash
+
+0xa87d942c    9d2541a6b500dde7ac433dcb6b805640345fd60ed7d8a2d9df2dc58b
+
+//GetName Method's Hash
+
+0x17d7de7c    abf33b834e714ff77ab86d9d6c1a54372e0dd0137a382d5e9eb9ecda
+
+//SetName Method's Hash
+
+0xc47f0027    6f2f257a0d6e08fde7692b09d811f0ee9b5a09ef0807a6ba46c7db94
+
+//increaseCount Method's Hash
+
+0xabd1b73d    d116b35f88ef63716dae8a463c109108dbfaff7f18f9e12fc4527848
+
+//"Matheus" in hex
+
+0x4d617468657573
+
+
+//call
+
+curl http://127.0.0.1:7545 -X POST --data '{"jsonrpc":"2.0","method":"eth_call",
+"params":[{"to":"0x941Ec482894e9f69f7407c245855073e61c65F28",
+           "data":"0xa87d942c"}, "latest"],"id":1}'
+
+
+//set
+
+curl http://127.0.0.1:7545 -X POST --data '{"jsonrpc":"2.0","method":"eth_sendTransaction",
+"params":[{"from":"0x6Dbe3006e1674ca32fb9A32e855c068dFd2259DB",
+           "to":"0x941Ec482894e9f69f7407c245855073e61c65F28",
+           "data":"0xabd1b73d"}],"id":1}'
+
+
+
+//Ropsten addresses
+
+           0x59B6889925D988335c14107f9CDce60621e04742 <-Owner
+           0xf631b1cC9CcF165eC0C161E4B85F03E68A081bef
+
+//call ropsten
+curl https://ropsten.infura.io/v3/edff53177db145a08eb98177e6f14ffa -X POST --data '{"jsonrpc":"2.0","method":"eth_call","params":[{"from":"0xf631b1cC9CcF165eC0C161E4B85F03E68A081bef","to":"0xf9dd3CBD7301132Aa809574A09374EbccAd4cAE0","data":"0xa87d942c"}, "latest"],"id":1}'
+
+//set ropsten
+curl https://ropsten.infura.io/v3/edff53177db145a08eb98177e6f14ffa -X POST --data '{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{"from":"0xf631b1cC9CcF165eC0C161E4B85F03E68A081bef","to":"0xf9dd3CBD7301132Aa809574A09374EbccAd4cAE0","data":"0xabd1b73d"}],"id":1}'
