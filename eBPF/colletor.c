@@ -90,7 +90,7 @@ int colletor(struct __sk_buff *skb) {
             struct udp_t *udp = cursor_advance(cursor, sizeof(*udp));
             key.port_src = udp->sport;
             key.port_dst = udp->dport;
-            //new_entry_map(&key, ip->tlen);
+            match_entry_map(&key, ip->tlen);
         }
     }
 

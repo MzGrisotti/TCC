@@ -85,6 +85,13 @@ class Flow_Data:
     def get_delta_time(self):
         return uptime.uptime() - (self.last_packet_tstamp/1e9)
 
+    def convert_time(self, nanoseconds):
+        print("convert_time")
+        seconds, nanoseconds = divmod(info, 1e9)
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        print(hours, minutes, seconds, nanoseconds)
+
     def show(self):
         print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}, last: {:15}"
         .format(self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.id, self.start_tstamp, self.last_packet_tstamp))
