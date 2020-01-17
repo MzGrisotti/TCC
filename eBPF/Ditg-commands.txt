@@ -1,0 +1,33 @@
+D-ITG Client:
+
+sudo ITGRecv -i lo
+
+-a      bind to address
+
+-i      bind to interface
+
+
+D-ITG Server:
+
+sudo ITGSend -i lo -C 100 -c 500 -t 1000 -Ssp 9400 -rp 9500
+
+
+-a      destination address
+
+-i      bind interface
+
+-t      duration (in ms)
+    or
+-z      number of packets
+
+-sp     source port
+
+-rp     destination port
+
+-T      protocol:
+         - UDP
+         - TCP
+         - ICMP
+
+-C rate (default: 1000pkts/s)
+-c packet size (default: 512B)
