@@ -8,18 +8,18 @@
 #include <linux/skbuff.h>
 
 struct Flow_data {
-    u64 id;
-    u64 ip_src;
-    u64 ip_dst;
-    u64 port_src;
-    u64 port_dst;
-    u64 protocol;
-    u64 pktcnt;
-    u64 bytes;
-    u64 start_tstamp;
-    u64 end_tstamp;
-    u64 last_packet_tstamp;
-    u64 duration;
+    u64 id;                     //ID do fluxo (usado só para saber quantos existem registrados)
+    u64 ip_src;                 //IP de saida
+    u64 ip_dst;                 //IP de destino
+    u64 port_src;               //Porta de saida
+    u64 port_dst;               //Porta de destino
+    u64 protocol;               //Protocolo
+    u64 pktcnt;                 //Contador de pacotes do fluxo
+    u64 bytes;                  //Total de bytes dos pacotes que chegaram
+    u64 start_tstamp;           //Timestamp de quando o fluxo foi registrado
+    u64 end_tstamp;             //Timestamp de quando o fluxo terminou (não usado ainda)
+    u64 last_packet_tstamp;     //Timestamp do ultimo pacote que chegou no momento
+    u64 duration;               //Duração do fluxo (não usado ainda)
 };
 
 struct Flow_key {
@@ -106,7 +106,7 @@ static void match_entry_map(struct Flow_key *key, u64 ip_len){
         flow->bytes += ip_len;
         flow->last_packet_tstamp = bpf_ktime_get_ns();
     }else{ // Not found entry
-        new_entry_map(key, ip_len);
+        // new_entry_map(key, ip_len);
     }
 
 }

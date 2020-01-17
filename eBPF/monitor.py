@@ -7,13 +7,10 @@ import time
 import sys
 import uptime
 
-interface = "enp0s3"
+interface = "lo"
 
 def new_key(bpf):
     print("Creating New Key")
-    #map[key] = map.Leaf(c_ulong(arguments))
-    # map[c_ulong(1)] = map.Leaf(c_ulong(5),c_ulong(2), c_ulong(3))
-    # flow_data[flow_data.Key(c_ulong(5),c_ulong(5),c_ulong(5),c_ulong(4),c_ulong(5))] = flow_data.Leaf(c_ulong(1),c_ulong(2), c_ulong(3),c_ulong(4),c_ulong(5),c_ulong(6),c_ulong(7),c_ulong(8))
     map = bpf.get_table("Flow")
 
     flow = Flow_Data(map, "192.0.0.1", "80.101.30.20", 8080, 3999, 10, uptime.uptime())
@@ -21,15 +18,10 @@ def new_key(bpf):
     leaf = flow.get_leaf()
     map[key] = leaf
 
-    ip_src = ip_to_hex("10.0.0.1")
-    ip_dst = ip_to_hex("192.23.50.3")
-    port_src = c_ulong(1000)
-    port_dst = c_ulong(3999)
-    protocol = c_ulong(6)
-    start_tstamp = c_ulong(int(uptime.uptime()*1e9))
-    # protocol = c_ulong(int(hex(6), 16))
-    # print("ip_src: {}, ip_dst: {}, port_src: {}, port_dst: {}, protocol: {}".format(ip_src, ip_dst, port_src, port_dst, protocol))
-    map[map.Key(ip_src, ip_dst, port_src, port_dst, protocol)] = map.Leaf(c_ulong(0),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0), start_tstamp, c_ulong(0), start_tstamp, c_ulong(0))
+    flow = Flow_Data(map, "127.0.0.1", "127.0.0.1", 9400, 9500, 17, uptime.uptime())
+    key = flow.get_key()
+    leaf = flow.get_leaf()
+    map[key] = leaf
 
 def convert_time(nanoseconds):
     print("convert_time")
