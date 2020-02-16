@@ -7,7 +7,7 @@ import time
 import sys
 import uptime
 
-interface = "lo"
+interface = "enp0s3"
 
 def new_key(bpf):
     print("Creating New Key")
@@ -77,17 +77,26 @@ def debug(bpf):
         # printb(b"%s" % (msg))
     bpf.remove_xdp(interface)
 
+def export_all(map):
+    i = 0
+
 def main_loop(bpf):
     flow_data = bpf.get_table("Flow")
     info_data = bpf.get_table("Info")
     print("Printing data")
     new_key(bpf)
+    export_time_limit = 300 #seconds
+    export_time = uptime.uptime()
     while 1:
+        if(uptime.uptime() - export_time > export_time_limit):
+            export_all(flow_data)
         try:
             print("\nFlows:\n")
             for k in flow_data.keys():
                 map = flow_data[k]
                 flow = Flow_Data(map)
+                # if(flow.verify_export()):
+                    # flow_data.__delitem__(k)
                 flow.show()
 
             # for k in info_data.keys():
@@ -95,7 +104,7 @@ def main_loop(bpf):
             #     info2 = info_data[k].info2
             #     up = uptime.uptime()
             #     print("time since last packet:{}, last packet:{}, delta time:{}".format(up - (info1/1e9), info1, info2))
-
+            # print(count)
             time.sleep(1)
         except KeyboardInterrupt:
             print("Removing filter from device")
