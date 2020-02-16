@@ -46,6 +46,7 @@ class Flow_Data:
             self.end_tstamp = int(map.end_tstamp)
             self.last_packet_tstamp = int(map.last_packet_tstamp)
             self.duration = int(map.duration)
+            self.fin = 0
 
         # Created with User Space Arguments
         else:
@@ -56,9 +57,12 @@ class Flow_Data:
             self.port_src = args[3]
             self.port_dst = args[4]
             self.protocol = long(args[5])
-            self.start_tstamp = int(args[6]*1e9)
+            # self.start_tstamp = int(args[6]*1e9)
+            self.start_tstamp = int(uptime.uptime()*1e9)
             # self.end_tstamp = args[7]
-            self.last_packet_tstamp = int(args[6]*1e9)
+            # self.last_packet_tstamp = int(args[6]*1e9)
+            self.last_packet_tstamp = int(uptime.uptime()*1e9)
+            self.fin = 0
             # self.duration = args[9]
 
     def get_key(self):
@@ -87,10 +91,31 @@ class Flow_Data:
 
     def convert_time(self, nanoseconds):
         print("convert_time")
-        seconds, nanoseconds = divmod(info, 1e9)
+        seconds, nanoseconds = divmod(nanoseconds, 1e9)
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         print(hours, minutes, seconds, nanoseconds)
+
+    def verify_export(self):
+        export = False
+        export_time_limit = 30 #seconds
+
+        if(self.fin == 1):
+            export = True
+            self.fin = 0
+
+        delta = int(uptime.uptime()* 1e9) - self.last_packet_tstamp
+        if(delta > export_time_limit * 1e9):
+            export = True
+
+        if(export):
+            self.export()
+
+        return export
+
+    def export(self):
+        #export flow data
+        i = 1 #ignore
 
     def show(self):
         print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}, last: {:15}"
