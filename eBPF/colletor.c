@@ -53,7 +53,7 @@ BPF_HASH(Flow, struct Flow_key, struct Flow_data, 10240);
 BPF_HASH(Info, u64, struct Info_data, 10240);
 
 static void new_entry_map(struct Flow_key *key, u64 ip_len);
-static void match_entry_map(struct Flow_key *key, u64 ip_len);
+static void match_entry_map(struct Flow_key *key, u64 ip_len, unsigned char op);
 
 int colletor(struct __sk_buff *skb) {
 
@@ -84,29 +84,34 @@ int colletor(struct __sk_buff *skb) {
             struct tcp_t *tcp = cursor_advance(cursor, sizeof(*tcp));
             key.port_src = tcp->src_port;
             key.port_dst = tcp->dst_port;
-            match_entry_map(&key, ip->tlen);
+            match_entry_map(&key, ip->tlen, tcp->flag_fin);
         }
         if (ip->nextp == IP_UDP) {
             struct udp_t *udp = cursor_advance(cursor, sizeof(*udp));
             key.port_src = udp->sport;
             key.port_dst = udp->dport;
-            match_entry_map(&key, ip->tlen);
+            match_entry_map(&key, ip->tlen, '0');
         }
     }
 
     return -1;
 }
 
-static void match_entry_map(struct Flow_key *key, u64 ip_len){
+static void match_entry_map(struct Flow_key *key, u64 ip_len, unsigned char op){
     // Search for key in map
     struct Flow_data *flow = Flow.lookup(key);
 
     if(flow){ // Found entry
+        if(op == 0x1){
+
+            flow->port_src = 0;
+            flow->port_dst = 0;
+        }
         flow->pktcnt++;
         flow->bytes += ip_len;
         flow->last_packet_tstamp = bpf_ktime_get_ns();
     }else{ // Not found entry
-        // new_entry_map(key, ip_len);
+        new_entry_map(key, ip_len);
     }
 
 }
