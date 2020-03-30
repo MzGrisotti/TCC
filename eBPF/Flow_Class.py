@@ -56,7 +56,7 @@ class Flow_Data:
             self.ip_dst = args[2]
             self.port_src = args[3]
             self.port_dst = args[4]
-            self.protocol = long(args[5])
+            self.protocol = c_ulong(args[5])
             # self.start_tstamp = int(args[6]*1e9)
             self.start_tstamp = int(uptime.uptime()*1e9)
             # self.end_tstamp = args[7]
