@@ -53,21 +53,42 @@ def load_ebpf_program():
 
     return bpf
 
-def download_blockchain_data():
+def download_blockchain_data(bpf):
+
+    print("Downloading Blockchain Data")
+
     web3 = Web3(Web3.HTTPProvider('HTTP://10.0.0.112:7545'))
 
-    abi = json.loads('[ { "constant": true, "inputs": [ { "name": "", "type": "address" }, { "name": "", "type": "uint256" } ], "name": "Flows_id", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "constant": false, "inputs": [ { "name": "_monitor", "type": "address" } ], "name": "Set_Monitor", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_host", "type": "string" }, { "name": "_destiny", "type": "string" }, { "name": "_protocol", "type": "string" } ], "name": "New_Flow", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_id", "type": "uint256" } ], "name": "Increase_Count", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "Get_Flow_Id", "outputs": [ { "name": "", "type": "uint256[]" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [ { "name": "_id", "type": "uint256" } ], "name": "Get_Flow", "outputs": [ { "name": "", "type": "uint256" }, { "name": "", "type": "string" }, { "name": "", "type": "string" }, { "name": "", "type": "string" }, { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "Get_Flow_Qnt", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" } ]')
+    abi = json.loads('[ { "constant": true, "inputs": [ { "name": "", "type": "address" }, { "name": "", "type": "uint256" } ], "name": "Flows_id", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "constant": false, "inputs": [ { "name": "_monitor", "type": "address" } ], "name": "Set_Monitor", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_host", "type": "string" }, { "name": "_destiny", "type": "string" }, { "name": "_protocol", "type": "uint256" } ], "name": "New_Flow", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "Get_Flow_Id", "outputs": [ { "name": "", "type": "uint256[]" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [ { "name": "_id", "type": "uint256" } ], "name": "Get_Flow", "outputs": [ { "name": "", "type": "uint256" }, { "name": "", "type": "string" }, { "name": "", "type": "string" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" }, { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "Get_Flow_Qnt", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" } ]')
 
     monitor = '0x5267D97e8C44fd7a3D8FccC484b5038e39fa4b31'
     contract_address = '0x16C8730b5abcaAa78457CE58a92775d7af9e5ed8'
     address = web3.toChecksumAddress(contract_address)
-    contract = web3.eth.contract(address = address, abi=abi)
+    Smart_Contract = web3.eth.contract(address = address, abi=abi)
+
+    last_flow_id = Smart_Contract.functions.Get_Flow_Qnt().call()
+
+    Flows = dict()
+    map = bpf.get_table("Flow")
+
+    for i in range(last_flow_id):
+        new_flow = Smart_Contract.functions.Get_Flow(i).call({'from':monitor})
+        Flows[new_flow[0]] = Flow_Data(new_flow, Smart_Contract, map)
+
+    for key in Flows:
+
+        map_key = Flows[key].get_key()
+        map_leaf = Flows[key].get_leaf()
+        map[map_key] = map_leaf
+
+
+    return Smart_Contract, Flows
 
 
 def main():
 
     bpf = load_ebpf_program()
-    download_blockchain_data()
+    Smart_Contract, Flows = download_blockchain_data(bpf)
     main_loop(bpf)
     # debug(bpf)
 
@@ -102,7 +123,7 @@ def main_loop(bpf):
     flow_data = bpf.get_table("Flow")
     info_data = bpf.get_table("Info")
     print("Printing data")
-    new_key(bpf)
+    # new_key(bpf)
     export_time_limit = 300 #seconds
     export_time = uptime.uptime()
     while 1:
