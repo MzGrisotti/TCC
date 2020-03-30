@@ -7,6 +7,12 @@ sudo apt-get -y install bison build-essential cmake flex git libedit-dev \
 
 git clone https://github.com/iovisor/bcc.git
 mkdir bcc/build; cd bcc/build
+
+Python 2.7:
 cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+
+Python 3.5+:
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DPYTHON_CMD=python3
+
 make
 sudo make install
