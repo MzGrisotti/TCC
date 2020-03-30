@@ -3,7 +3,7 @@ from ctypes import *
 def ip_to_hex(ip):
     ip = ip.split(".")
     hex_ip ='0x'+'{:02x}{:02x}{:02x}{:02x}'.format(*map(int, ip))
-    int_ip = c_ulong(int(hex_ip[2:], 16))
+    int_ip = c_uint(int(hex_ip[2:], 16))
     return int_ip
 
 def hex_to_ip(ip):

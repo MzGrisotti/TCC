@@ -9,10 +9,10 @@
 
 struct Flow_data {
     u64 id;                     //ID do fluxo (usado só para saber quantos existem registrados)
-    u64 ip_src;                 //IP de saida
-    u64 ip_dst;                 //IP de destino
-    u64 port_src;               //Porta de saida
-    u64 port_dst;               //Porta de destino
+    u32 ip_src;                 //IP de saida
+    u32 ip_dst;                 //IP de destino
+    u32 port_src;               //Porta de saida
+    u32 port_dst;               //Porta de destino
     u64 protocol;               //Protocolo
     u64 pktcnt;                 //Contador de pacotes do fluxo
     u64 bytes;                  //Total de bytes dos pacotes que chegaram
@@ -23,10 +23,10 @@ struct Flow_data {
 };
 
 struct Flow_key {
-    u64 ip_src;
-    u64 ip_dst;
-    u64 port_src;
-    u64 port_dst;
+    u32 ip_src;
+    u32 ip_dst;
+    u32 port_src;
+    u32 port_dst;
     u64 protocol;
 };
 
@@ -110,7 +110,8 @@ static void match_entry_map(struct Flow_key *key, u64 ip_len, unsigned char op){
         flow->pktcnt++;
         flow->bytes += ip_len;
         flow->last_packet_tstamp = bpf_ktime_get_ns();
-    }else{ // Not found entry
+    }
+    else{ // Not found entry
         new_entry_map(key, ip_len);
     }
 
@@ -119,7 +120,9 @@ static void match_entry_map(struct Flow_key *key, u64 ip_len, unsigned char op){
 static void new_entry_map(struct Flow_key *key, u64 ip_len){
 
     u64 zero = 0;
-    struct Flow_data Flow_Zero = {zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero};
+    uint zero32 = 0;
+    struct Flow_data Flow_Zero = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // struct Flow_data Flow_Zero = {zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero};
 
     // Create new entry
     struct Flow_data* flow = Flow.lookup_or_try_init(key, &Flow_Zero);

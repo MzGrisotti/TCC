@@ -6,8 +6,8 @@ import uptime
 #     u64 id;
 #     u64 ip_src;
 #     u64 ip_dst;
-#     u64 port_src;
-#     u64 port_dst;
+#     uint port_src;
+#     uint port_dst;
 #     u64 protocol;
 #     u64 pktcnt;
 #     u64 bytes;
@@ -48,9 +48,27 @@ class Flow_Data:
             self.duration = int(map.duration)
             self.fin = 0
 
+        #Created with Blockchain Arguments
+        elif(len(args) == 3):
+            self.smart_contract = args[1]
+            self.id = args[0][0]
+            self.map = args[2]
+            self.ip_src = args[0][1]
+            self.ip_dst = args[0][2]
+            self.port_src = 0
+            self.port_dst = 0
+            self.protocol = c_ulong(args[0][5])
+            # self.start_tstamp = int(args[6]*1e9)
+            self.start_tstamp = int(uptime.uptime()*1e9)
+            # self.end_tstamp = args[7]
+            # self.last_packet_tstamp = int(args[6]*1e9)
+            self.last_packet_tstamp = int(uptime.uptime()*1e9)
+            self.fin = 0
+            # self.duration = args[9]
+
         # Created with User Space Arguments
         else:
-            self.id = 0
+            self.id = 9999
             self.map = args[0]
             self.ip_src = args[1]
             self.ip_dst = args[2]
@@ -69,8 +87,8 @@ class Flow_Data:
         # Return Kernel's Key Object
         ip_src = ip_to_hex(self.ip_src)
         ip_dst = ip_to_hex(self.ip_dst)
-        port_src = c_ulong(self.port_src)
-        port_dst = c_ulong(self.port_dst)
+        port_src = c_uint(self.port_src)
+        port_dst = c_uint(self.port_dst)
         protocol = self.protocol
         return self.map.Key(ip_src, ip_dst, port_src, port_dst, protocol)
 
@@ -79,8 +97,8 @@ class Flow_Data:
         id = self.id
         ip_src = ip_to_hex(self.ip_src)
         ip_dst = ip_to_hex(self.ip_dst)
-        port_src = c_ulong(self.port_src)
-        port_dst = c_ulong(self.port_dst)
+        port_src = c_uint(self.port_src)
+        port_dst = c_uint(self.port_dst)
         protocol = self.protocol
         start_tstamp = c_ulong(self.start_tstamp)
         last_packet_tstamp = c_ulong(self.last_packet_tstamp)
