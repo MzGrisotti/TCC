@@ -7,6 +7,8 @@ contract Monitor{
         address client;
         string host;
         string destiny;
+        uint host_port;
+        uint destiny_port;
         uint protocol;
         uint256 pktcount;
         uint256 total_bytes;
@@ -34,7 +36,7 @@ contract Monitor{
 
     }
 
-    function New_Flow(string memory _host, string memory _destiny, uint _protocol) public{
+    function New_Flow(string memory _host, string memory _destiny, uint _protocol, uint _hport, uint _dport) public{
         uint actual = flows_qnt;
         flows_qnt++;
         Flows_id[msg.sender].push(actual);
@@ -44,6 +46,8 @@ contract Monitor{
         //Set by client
         Flows[actual].host = _host;
         Flows[actual].destiny = _destiny;
+        Flows[actual].host_port = _hport;
+        Flows[actual].destiny_port = _dport;
         Flows[actual].protocol = _protocol;
 
         //Set to default
@@ -60,10 +64,10 @@ contract Monitor{
         return Flows_id[msg.sender];
     }
 
-    function Get_Flow(uint _id) public view returns(uint, string memory, string memory, uint, uint256, uint256, uint256, uint256, uint256){
+    function Get_Flow(uint _id) public view returns(uint, string memory, string memory, uint, uint, uint, uint256, uint256, uint256, uint256, uint256){
         require(Flows[_id].client == msg.sender || msg.sender == monitor, "Esse dado so pode ser acessado pelo cliente a quem ele pertence");
         Flow memory f = Flows[_id];
-        return(f.id, f.host, f.destiny, f.protocol, f.pktcount, f.total_bytes, f.start_tstamp, f.last_packet_tstamp, f.duration);
+        return(f.id, f.host, f.destiny, f.host_port, f.destiny_port, f.protocol, f.pktcount, f.total_bytes, f.start_tstamp, f.last_packet_tstamp, f.duration);
     }
 
     function Get_Flow_Qnt() public view returns(uint){
