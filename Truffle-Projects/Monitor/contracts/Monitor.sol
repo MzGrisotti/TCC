@@ -60,7 +60,7 @@ contract Monitor{
         Flows[actual].last_packet_tstamp = 0;
         Flows[actual].duration = 0;
 
-        new_entry(actual);
+        emit new_entry(actual);
 
     }
 
