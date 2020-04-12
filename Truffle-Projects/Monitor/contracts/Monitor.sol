@@ -23,11 +23,11 @@ contract Monitor{
     address private owner;
     address private monitor;
 
-    uint private flows_qnt;
+    uint private next_flow_id;
 
     constructor() public{
         owner = msg.sender;
-        flows_qnt = 0;
+        next_flow_id = 0;
     }
 
     function Set_Monitor(address _monitor) public{
@@ -37,8 +37,8 @@ contract Monitor{
     }
 
     function New_Flow(string memory _host, string memory _destiny, uint _protocol, uint _hport, uint _dport) public{
-        uint actual = flows_qnt;
-        flows_qnt++;
+        uint actual = next_flow_id;
+        next_flow_id++;
         Flows_id[msg.sender].push(actual);
         Flows[actual].id = actual;
         Flows[actual].client = msg.sender;
@@ -60,6 +60,18 @@ contract Monitor{
 
     }
 
+    function Update_Flow(uint _id, uint64 _pktcnt, uint64 _t_bytes, uint64 _last_pkt_tstamp, uint64 _end_tstamp) public{
+        /* require(msg.sender == monitor, "Metodo só pode ser acessado pelo monitor"); */
+        if(Flows[_id].id >= 0){
+            Flows[_id].pktcount += (uint256(_pktcnt) - Flows[_id].pktcount);
+            Flows[_id].total_bytes += (uint256(_t_bytes) - Flows[_id].total_bytes);
+            Flows[_id].end_tstamp = uint256(_end_tstamp);
+            Flows[_id].last_packet_tstamp = uint256(_last_pkt_tstamp);
+            Flows[_id].duration = block.timestamp - Flows[_id].start_tstamp;
+        }
+
+    }
+
     function Get_Flow_Id() public view returns(uint[] memory){
         return Flows_id[msg.sender];
     }
@@ -71,7 +83,7 @@ contract Monitor{
     }
 
     function Get_Flow_Qnt() public view returns(uint){
-        return flows_qnt;
+        return next_flow_id;
     }
 
 
