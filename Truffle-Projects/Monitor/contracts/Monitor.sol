@@ -25,6 +25,8 @@ contract Monitor{
 
     uint private next_flow_id;
 
+    event new_entry(uint id);
+
     constructor() public{
         owner = msg.sender;
         next_flow_id = 0;
@@ -57,6 +59,8 @@ contract Monitor{
         Flows[actual].end_tstamp = 0;
         Flows[actual].last_packet_tstamp = 0;
         Flows[actual].duration = 0;
+
+        new_entry(actual);
 
     }
 

@@ -1,5 +1,7 @@
 from Helper_Functions import *
 from ctypes import *
+from web3 import Web3
+import random
 import uptime
 
 # struct Flow_data {
@@ -58,31 +60,16 @@ class Flow_Data:
             self.port_src = args[0][3]
             self.port_dst = args[0][4]
             self.protocol = args[0][5]
-            self.pktcnt = 0
-            self.bytes = 0
+            self.pktcnt = args[0][6]
+            self.bytes = args[0][7]
             self.start_tstamp = int(uptime.uptime()*1e9)
             self.end_tstamp = 0
-            self.last_packet_tstamp = int(uptime.uptime()*1e9)
+            self.last_export = int(uptime.uptime()*1e9)
+            self.last_packet_tstamp = int((uptime.uptime() + 10)*1e9)
             self.duration = 0
             self.fin = 0
             # self.duration = args[9]
 
-        # Created with User Space Arguments
-        else:
-            self.id = 9999
-            self.map = args[0]
-            self.ip_src = args[1]
-            self.ip_dst = args[2]
-            self.port_src = args[3]
-            self.port_dst = args[4]
-            self.protocol = args[5]
-            # self.start_tstamp = int(args[6]*1e9)
-            self.start_tstamp = int(uptime.uptime()*1e9)
-            # self.end_tstamp = args[7]
-            # self.last_packet_tstamp = int(args[6]*1e9)
-            self.last_packet_tstamp = int(uptime.uptime()*1e9)
-            self.fin = 0
-            # self.duration = args[9]
 
     def update_stats_from_collector(self, map):
         # self.protocol = hex(int(map.protocol))
@@ -130,26 +117,38 @@ class Flow_Data:
         hours, minutes = divmod(minutes, 60)
         print(hours, minutes, seconds, nanoseconds)
 
-    def verify_export(self):
+    def verify_export(self, web3, Smart_Contract):
         export = False
-        export_time_limit = 30 #seconds
+        export_time_limit = 10 #seconds
 
+        # Export Tag fin
         if(self.fin == 1):
             export = True
             self.fin = 0
 
+        # Export last packet tstamp
         delta = int(uptime.uptime()* 1e9) - self.last_packet_tstamp
-        if(delta > export_time_limit * 1e9):
+        if(delta > export_time_limit * 1e9 and self.last_packet_tstamp > self.last_export):
             export = True
 
         if(export):
-            self.export()
+            self.export(web3, Smart_Contract)
+            self.last_export = int(uptime.uptime()*1e9)
 
         return export
 
-    def export(self):
+    def export(self, web3, Smart_Contract):
         #export flow data
-        i = 1 #ignore
+        print("Exporting Flow {}:".format(self.id))
+        monitor = '0x5267D97e8C44fd7a3D8FccC484b5038e39fa4b31'
+        tx_hash = Smart_Contract.functions.Update_Flow(
+        self.id,
+        self.pktcnt,
+        self.bytes,
+        self.last_packet_tstamp,
+        self.end_tstamp
+        ).transact({'from': monitor})
+        web3.eth.waitForTransactionReceipt(tx_hash)
 
     def show(self):
         print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}"
