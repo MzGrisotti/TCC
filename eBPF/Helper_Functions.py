@@ -17,3 +17,10 @@ def hex_to_ip(ip):
 
     ip = '.'.join(map(str, l))
     return ip
+
+def convert_time(nanoseconds):
+    print("convert_time")
+    seconds, nanoseconds = divmod(info, 1e9)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    print(hours, minutes, seconds, nanoseconds)

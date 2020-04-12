@@ -29,13 +29,6 @@ def new_key(bpf):
     leaf = flow.get_leaf()
     map[key] = leaf
 
-def convert_time(nanoseconds):
-    print("convert_time")
-    seconds, nanoseconds = divmod(info, 1e9)
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    print(hours, minutes, seconds, nanoseconds)
-
 def load_ebpf_program():
 
     print("Loading program into Interface")
@@ -88,37 +81,13 @@ def main():
 
     bpf = load_ebpf_program()
     Smart_Contract, Flows = download_blockchain_data(bpf)
-    main_loop(bpf)
-    # debug(bpf)
+    main_loop(bpf, Flows)
 
-def debug(bpf):
-    debug = bpf.get_table("Debug")
-    print("Debugging")
-    # hex_to_ip(0)
-    # ip_to_hex(0)
-    while 1:
-        try:
-            # (task, pid, cpu, flags, ts, msg) = bpf.trace_fields()
-            for k in debug.keys():
-                 val = debug[k]
-                 val1 = int(val.info1)
-                 val2 = int(val.info2)
-                 val3 = int(val.info3)
-
-                 print("debug: {}, {}, tstamp: {}".format(val1, val2, val3))
-            time.sleep(1)
-        except ValueError:
-            continue
-        except KeyboardInterrupt:
-             print("Removing filter from device")
-             break;
-        # printb(b"%s" % (msg))
-    bpf.remove_xdp(interface)
 
 def export_all(map):
     i = 0
 
-def main_loop(bpf):
+def main_loop(bpf, Flows):
     flow_data = bpf.get_table("Flow")
     info_data = bpf.get_table("Info")
     print("Printing data")
@@ -127,15 +96,18 @@ def main_loop(bpf):
     export_time = uptime.uptime()
     while 1:
         if(uptime.uptime() - export_time > export_time_limit):
-            export_all(flow_data)
+            export_all(Flows)
         try:
             print("\nFlows:\n")
             for k in flow_data.keys():
                 map = flow_data[k]
-                flow = Flow_Data(map)
+                id = map.id
+                Flows[id].update_stats_from_collector(map)
                 # if(flow.verify_export()):
                     # flow_data.__delitem__(k)
-                flow.show()
+                Flows[id].show()
+                # flow = Flow_Data(map)
+                # flow.show()
 
             time.sleep(1)
         except KeyboardInterrupt:

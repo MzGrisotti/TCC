@@ -111,9 +111,9 @@ static void match_entry_map(struct Flow_key *key, u64 ip_len, unsigned char op){
         flow->bytes += ip_len;
         flow->last_packet_tstamp = bpf_ktime_get_ns();
     }
-    else{ // Not found entry
-        new_entry_map(key, ip_len);
-    }
+    // else{ // Not found entry
+    //     new_entry_map(key, ip_len);
+    // }
 
 }
 

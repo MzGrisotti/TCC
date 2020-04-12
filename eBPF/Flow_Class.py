@@ -57,12 +57,13 @@ class Flow_Data:
             self.ip_dst = args[0][2]
             self.port_src = args[0][3]
             self.port_dst = args[0][4]
-            self.protocol = c_ulong(args[0][5])
-            # self.start_tstamp = int(args[6]*1e9)
+            self.protocol = args[0][5]
+            self.pktcnt = 0
+            self.bytes = 0
             self.start_tstamp = int(uptime.uptime()*1e9)
-            # self.end_tstamp = args[7]
-            # self.last_packet_tstamp = int(args[6]*1e9)
+            self.end_tstamp = 0
             self.last_packet_tstamp = int(uptime.uptime()*1e9)
+            self.duration = 0
             self.fin = 0
             # self.duration = args[9]
 
@@ -74,7 +75,7 @@ class Flow_Data:
             self.ip_dst = args[2]
             self.port_src = args[3]
             self.port_dst = args[4]
-            self.protocol = c_ulong(args[5])
+            self.protocol = args[5]
             # self.start_tstamp = int(args[6]*1e9)
             self.start_tstamp = int(uptime.uptime()*1e9)
             # self.end_tstamp = args[7]
@@ -82,6 +83,21 @@ class Flow_Data:
             self.last_packet_tstamp = int(uptime.uptime()*1e9)
             self.fin = 0
             # self.duration = args[9]
+
+    def update_stats_from_collector(self, map):
+        # self.protocol = hex(int(map.protocol))
+        if int(map.pktcnt) - self.pktcnt > 0:
+             self.pktcnt += (int(map.pktcnt) - self.pktcnt)
+
+        if int(map.bytes) - self.bytes > 0:
+            self.bytes += (int(map.bytes) - self.bytes)
+
+        # self.pktcnt = int(map.pktcnt)
+        # self.bytes = int(map.bytes)
+        # self.fin = map.fin
+        self.last_packet_tstamp = int(map.last_packet_tstamp)
+        self.duration = int(map.duration)
+
 
     def get_key(self):
         # Return Kernel's Key Object
@@ -136,5 +152,5 @@ class Flow_Data:
         i = 1 #ignore
 
     def show(self):
-        print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}, last: {:15}"
-        .format(self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.id, self.start_tstamp, self.last_packet_tstamp))
+        print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}"
+        .format(self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.id, self.start_tstamp))
