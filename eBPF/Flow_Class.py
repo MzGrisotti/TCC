@@ -73,14 +73,14 @@ class Flow_Data:
 
     def update_stats_from_collector(self, map):
         # self.protocol = hex(int(map.protocol))
-        if int(map.pktcnt) - self.pktcnt > 0:
-             self.pktcnt += (int(map.pktcnt) - self.pktcnt)
+        # if int(map.pktcnt) - self.pktcnt > 0:
+        #      self.pktcnt += (int(map.pktcnt) - self.pktcnt)
+        #
+        # if int(map.bytes) - self.bytes > 0:
+        #     self.bytes += (int(map.bytes) - self.bytes)
 
-        if int(map.bytes) - self.bytes > 0:
-            self.bytes += (int(map.bytes) - self.bytes)
-
-        # self.pktcnt = int(map.pktcnt)
-        # self.bytes = int(map.bytes)
+        self.pktcnt = int(map.pktcnt)
+        self.bytes = int(map.bytes)
         # self.fin = map.fin
         self.last_packet_tstamp = int(map.last_packet_tstamp)
         self.duration = int(map.duration)
@@ -105,7 +105,7 @@ class Flow_Data:
         protocol = self.protocol
         start_tstamp = c_ulong(self.start_tstamp)
         last_packet_tstamp = c_ulong(self.last_packet_tstamp)
-        return self.map.Leaf(c_ulong(id),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(0),c_ulong(0),start_tstamp,c_ulong(0),last_packet_tstamp,c_ulong(0))
+        return self.map.Leaf(c_ulong(id),ip_src, ip_dst, port_src, port_dst, protocol,c_ulong(self.pktcnt),c_ulong(self.bytes),start_tstamp,c_ulong(0),last_packet_tstamp,c_ulong(0))
 
     def get_delta_time(self):
         return uptime.uptime() - (self.last_packet_tstamp/1e9)
