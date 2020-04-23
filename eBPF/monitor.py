@@ -52,7 +52,7 @@ def download_blockchain_data(bpf):
     Flows = dict()
     map = bpf.get_table("Flow")
 
-    oracle = Oracle(web3, Smart_Contract, map)
+    oracle = Oracle(bpf, web3, Smart_Contract, map)
     oracle.start()
 
     for i in range(last_flow_id):
@@ -98,16 +98,16 @@ def main_loop(bpf, Flows, web3, Smart_Contract, oracle):
         new_flows = oracle.get_new_entries()
         if(len(new_flows) > 0):
             print("Merging New Flows")
-            update_ebpf_map(bpf, new_flows)
             Flows.update(new_flows)
         try:
             print("\nFlows:\n")
             for k in flow_data.keys():
                 map = flow_data[k]
                 id = map.id
-                Flows[id].update_stats_from_collector(map)
-                a = Flows[id].verify_export(web3, Smart_Contract)
-                Flows[id].show()
+                if id in Flows:
+                    Flows[id].update_stats_from_collector(map)
+                    a = Flows[id].verify_export(web3, Smart_Contract)
+                    Flows[id].show()
 
             time.sleep(1)
 

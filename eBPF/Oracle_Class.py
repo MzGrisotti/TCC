@@ -15,8 +15,9 @@ import sys
 import uptime
 
 class Oracle(Thread):
-    def __init__(self, web3, contract, map):
+    def __init__(self, bpf, web3, contract, map):
         Thread.__init__(self)
+        self.bpf = bpf
         self.web3 = web3
         self.contract = contract
         self.map = map
@@ -30,7 +31,16 @@ class Oracle(Thread):
         print("New Flow Entry Detected, ID: {:4}".format(new_id))
         new_flow = self.contract.functions.Get_Flow(new_id).call({'from':'0x5267D97e8C44fd7a3D8FccC484b5038e39fa4b31'})
         self.lock.acquire()
-        self.new[new_flow[0]] = Flow_Data(new_flow, self.contract, self.map)
+
+        new = Flow_Data(new_flow, self.contract, self.map)
+        self.new[new_id] = new
+
+        map = self.bpf.get_table("Flow")
+
+        map_key = new.get_key()
+        map_leaf = new.get_leaf()
+        map[map_key] = map_leaf
+
         self.lock.release()
 
     def run(self):
