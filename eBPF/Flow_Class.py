@@ -36,12 +36,9 @@ class Flow_Data:
             self.id = map.id
             self.ip_src = hex_to_ip(map.ip_src)
             self.ip_dst = hex_to_ip(map.ip_dst)
-            # ip_src = int(map.ip_src)
-            # ip_dst = hex(int(map.ip_src))
             self.port_src = int(map.port_src)
             self.port_dst = int(map.port_dst)
             self.protocol = map.protocol
-            # self.protocol = hex(int(map.protocol))
             self.pktcnt = int(map.pktcnt)
             self.bytes = int(map.bytes)
             self.start_tstamp = int(map.start_tstamp)

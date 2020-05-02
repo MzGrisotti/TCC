@@ -1,3 +1,4 @@
 Truffle-Projects/node_modules/
 eBPF/*.pyc
 eBPF/__pycache__/
+eBPF/__pycache__/*.pyc
