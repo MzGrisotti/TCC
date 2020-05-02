@@ -24,19 +24,13 @@ tx_hash = contract.functions.Set_Monitor(monitor).transact({'from': owner})
 web3.eth.waitForTransactionReceipt(tx_hash)
 #print(contract.functions.Get_Flow_Qnt().call())
 flows_qnt = int(input("Digite a quantidade de fluxos para inserir na blockchain: "))
+host = input("Digite o Source IP: ")
+dest = input("Digite o Dest IP: ")
+host_port = int(input("Digite a Primeira Source Port: "))
+dest_port = int(input("Digite o Dest Port: "))
+protocol = int(input("Digite o Protocolo (TCP = 6 / UDP = 17): "))
+
 for i in range(0, flows_qnt):
-    account = random.randint(0,4)
-    if random.randint(1,2) == 1:
-        host = "10.0.0.112"
-        dest = "10.0.0.105"
-    else:
-        host = "10.0.0.105"
-        dest = "10.0.0.112"
-    host_port = random.randint(9000, 55000)
-    dest_port = random.randint(9000, 55000)
-    if random.randint(1,2) == 1:
-        protocol = 17
-    else:
-        protocol = 6
-    tx_hash = contract.functions.New_Flow(host, dest, protocol, host_port, dest_port).transact({'from': clients[account]})
+    tx_hash = contract.functions.New_Flow(host, dest, protocol, host_port, dest_port).transact({'from': clients[2]})
     web3.eth.waitForTransactionReceipt(tx_hash)
+    host_port = host_port + 1

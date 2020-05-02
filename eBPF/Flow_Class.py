@@ -151,5 +151,5 @@ class Flow_Data:
         web3.eth.waitForTransactionReceipt(tx_hash)
 
     def show(self):
-        print("ip_src: {:16s}, ip_dst: {:16s}, port_src: {:5}, port_dst: {:5}, proto: {:4}, pktcnt: {:3}, bytes: {:10}, id: {}, start: {:15}"
-        .format(self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.id, self.start_tstamp))
+        print("id: {:3}, ip_src: {:10s}, ip_dst: {:10s}, port_src: {:5}, port_dst: {:5}, proto: {:3}, pktcnt: {:7}, bytes: {:10}, start: {}"
+        .format( self.id, self.ip_src, self.ip_dst, self.port_src, self.port_dst, self.protocol, self.pktcnt, self.bytes, self.start_tstamp))

@@ -15,7 +15,8 @@ import time
 import sys
 import uptime
 
-interface = "enp0s3"
+interface = "s1-eth1"
+# interface = "enp0s3"
 
 def load_ebpf_program():
 
@@ -77,20 +78,19 @@ def main():
 
     bpf = load_ebpf_program()
     web3, Smart_Contract, Flows, oracle = download_blockchain_data(bpf)
-
     main_loop(bpf, Flows, web3, Smart_Contract, oracle)
+
+    # debug(bpf)
 
 
 def export_all(Flows, web3, smart_contract):
     for flow in Flows:
         Flows[flow].export(web3, smart_contract)
 
-
 def main_loop(bpf, Flows, web3, Smart_Contract, oracle):
     flow_data = bpf.get_table("Flow")
     info_data = bpf.get_table("Info")
     print("Collecting Data")
-    # new_key(bpf)
     export_time_limit = 300 #seconds
     last_export_tstamp = uptime.uptime()
     while 1:
@@ -106,7 +106,7 @@ def main_loop(bpf, Flows, web3, Smart_Contract, oracle):
                 id = map.id
                 if id in Flows:
                     Flows[id].update_stats_from_collector(map)
-                    a = Flows[id].verify_export(web3, Smart_Contract)
+                    #a = Flows[id].verify_export(web3, Smart_Contract)
                     Flows[id].show()
 
             time.sleep(1)
@@ -118,6 +118,26 @@ def main_loop(bpf, Flows, web3, Smart_Contract, oracle):
     export_all(Flows, web3, Smart_Contract)
     bpf.remove_xdp(interface)
     oracle.stop_t()
+
+def debug(bpf):
+    flow_data = bpf.get_table("Flow")
+    print("Collecting Data")
+
+    while 1:
+        try:
+            print("\nFlows:\n")
+            for k in flow_data.keys():
+                map = flow_data[k]
+                flow = Flow_Data(map)
+                flow.show()
+
+            time.sleep(1)
+
+        except KeyboardInterrupt:
+            print("Removing filter from device")
+            break;
+
+    bpf.remove_xdp(interface)
 
 
 if __name__ == "__main__":
